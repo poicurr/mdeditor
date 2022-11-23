@@ -1,0 +1,33 @@
+body {
+  padding: 0;
+  margin: 0;
+}
+
+.ltop {
+  height: 25px;
+  width: 50%;
+}
+
+.lpanel {
+  height: calc(100% - 25px);
+  width: 50%;
+  resize: none;
+  background: black;
+  color: green;
+  border: 1px solid black;
+}
+
+.rpanel {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  height: 100%;
+  width: 50%;
+  background: #efefef;
+  overflow: auto;
+}
+
+.target {
+  padding: 10px;
+}
+
