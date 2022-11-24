@@ -5,13 +5,14 @@
 namespace m2h {
 
 enum class TokenKind {
-  Prefix,  // reserved characters '+ - * # <digit>*.'
+  Prefix,  // reserved characters '! + - * # <digit>*.'
   Indent,
   Emphasis,  // * _
   Text,
   Horizontal,
   NewLine,
   BackQuote,  // `
+  Exclamation, // !
   Bracket,    // []()
   Eof
 };

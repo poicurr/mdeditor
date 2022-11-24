@@ -62,28 +62,30 @@ class Parser {
         it = bak;
       }
 
-      // inline
       if (parseInlineCode1(it)) {
         goto next;
       } else {
         it = bak;
       }
 
-      // inline
       if (parseInlineCode2(it)) {
         goto next;
       } else {
         it = bak;
       }
 
-      // inline
+      if (parseImage(it)) {
+        goto next;
+      } else {
+        it = bak;
+      }
+
       if (parseLink(it)) {
         goto next;
       } else {
         it = bak;
       }
 
-      // inline
       if (parseEmphasis(it)) {
         goto next;
       } else {
@@ -220,6 +222,46 @@ class Parser {
       context.append(new ParagraphNode(context.index,
                                        "<code>" + escape(code) + "</code>"));
     }
+    return true;
+  }
+
+  bool parseImage(token_iterator &it) {
+    if (it->kind != TokenKind::Exclamation) return false;
+    ++it;
+
+    if (it->kind != TokenKind::Bracket) return false;
+    if (it->value != "[") return false;
+    ++it;
+
+    if (it->kind != TokenKind::Text) return false;
+    auto alt = it->value;
+    ++it;
+
+    if (it->kind != TokenKind::Bracket) return false;
+    if (it->value != "]") return false;
+    ++it;
+
+    if (it->kind != TokenKind::Bracket) return false;
+    if (it->value != "(") return false;
+    ++it;
+
+    if (it->kind != TokenKind::Text) return false;
+    auto url = it->value;
+    ++it;
+
+    if (it->kind != TokenKind::Bracket) return false;
+    if (it->value != ")") return false;
+
+    auto link = "<img src=\"" + url + "\" alt=\"" + alt + "\">";
+
+    auto prevSibling = context.prevSibling();
+    if (prevSibling && prevSibling->type == NodeType::Paragraph) {
+      auto paragraph = static_cast<ParagraphNode *>(prevSibling);
+      paragraph->text += link;
+    } else {
+      context.append(new ParagraphNode(context.index, link));
+    }
+
     return true;
   }
 

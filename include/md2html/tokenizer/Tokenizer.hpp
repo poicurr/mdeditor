@@ -188,7 +188,7 @@ class Tokenizer {
   bool tokenizeText(const char*& p) {
     const char* p1 = p;
     while (!isCrlf(*p)) {
-      while (!oneof(*p, "*`[]()_") && !isCrlf(*p)) ++p;
+      while (!oneof(*p, "!*`[]()_") && !isCrlf(*p)) ++p;
       auto text = std::string{p1, p};
       if (!text.empty()) {
         tokens.emplace_back(TokenKind::Text, text, p1);
@@ -198,6 +198,11 @@ class Tokenizer {
       if (isCrlf(*p)) return true;
       if (oneof(*p, "*_")) {
         tokens.emplace_back(TokenKind::Emphasis, std::string{*p}, p1);
+        p1 = ++p;
+        continue;
+      }
+      if (*p == '!') {
+        tokens.emplace_back(TokenKind::Exclamation, "!", p1);
         p1 = ++p;
         continue;
       }
