@@ -50,7 +50,7 @@ let router = (req, res) => {
       let pair = decodeURI(reqdata).split("=", 2);
       let value = decodeURIComponent(pair[1]);
       fs.writeFileSync("./result/temp.md", value + "\n");
-      execSync("./bin/main.bin ./result/temp.md");
+      execSync("\"./bin/main.bin\" \"./result/temp.md\"");
       fs.readFile('./result/result.html', function (err, data) {
         res.writeHead(200, {'Content-Type': 'text/html'});
         res.write(encodeURI(data));

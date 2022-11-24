@@ -206,7 +206,7 @@ class Parser {
     ++it;
 
     auto code = std::string{};
-    while (it->kind != TokenKind::BackQuote && it->kind != TokenKind::Eof) {
+    while (it->kind != TokenKind::BackQuote) {
       if (it->kind == TokenKind::Eof) return false;
       code += it->value;
       ++it;
