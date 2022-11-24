@@ -17,7 +17,7 @@ inline bool isDigit(char c) { return '0' == c || isNonZeroDigit(c); }
 inline bool isCR(char c) { return c == '\r'; }
 inline bool isLF(char c) { return c == '\n'; }
 inline bool isCrlf(char c) { return isCR(c) || isLF(c); }
-inline bool isSpace(char c) { return c == ' '; }
+inline bool isSpace(char c) { return c == ' ' || c == '\t'; }
 inline bool isTab(char c) { return c == '\t'; }
 inline bool isLetter(char c) { return isAlpha(c) || isDigit(c) || c == '_'; }
 

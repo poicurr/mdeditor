@@ -118,7 +118,11 @@ class Tokenizer {
     int count = 0;
     const char* loc = p;
     while (isSpace(*p)) {
-      ++count;
+      if (*p == '\t') {
+        count += 4;
+      } else {
+        count += 1;
+      }
       ++p;
       if (count >= 4) break;
     }
@@ -143,8 +147,8 @@ class Tokenizer {
   bool tokenizeHorizontal(const char*& p) {
     const char* loc = p;
     int count = 0;
-    while (oneof(*p, "-*_")) {
-      ++count;
+    while (oneof(*p, "-*_") || isSpace(*p)) {
+      if (!isSpace(*p)) ++count;
       ++p;
     }
 
@@ -152,7 +156,7 @@ class Tokenizer {
     if (!isCrlf(*p)) return false;
     ++p;
 
-    tokens.emplace_back(TokenKind::Horizontal, "", loc);
+    tokens.emplace_back(TokenKind::Horizontal, std::string{loc, p}, loc);
     return true;
   }
 
@@ -223,10 +227,11 @@ class Tokenizer {
   bool tokenizeUnorderedList(const char*& p) {
     const char* loc = p;
     if (!oneof(*p, "*+-")) return false;
+    char c = *p;
     ++p;
     if (!isSpace(*p)) return false;
     ++p;
-    tokens.emplace_back(TokenKind::Prefix, "+ ", loc);
+    tokens.emplace_back(TokenKind::Prefix, std::string{c} + " ", loc);
     return true;
   }
 

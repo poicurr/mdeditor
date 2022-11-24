@@ -376,7 +376,7 @@ class Parser {
     }
 
     if (it->kind != TokenKind::Prefix) return false;
-    if (it->value != "+ ") return false;
+    if (it->value[0] == '#') return false;
     context.index += it->value.size();
     context.indent = 0;
 
