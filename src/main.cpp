@@ -27,11 +27,8 @@ int main(int argc, char const* argv[]) {
     s.append(buf, ifs.gcount());
   }
 
-  std::cout << "[info] start tokenizing" << std::endl;
   m2h::Tokenizer tokenizer;
   std::vector<m2h::Token> tokens = tokenizer.tokenize(s.c_str());
-
-  std::cout << "[info] start parsing" << std::endl;
   m2h::Parser parser;
   std::vector<m2h::Node*> nodes = parser.parse(tokens);
 

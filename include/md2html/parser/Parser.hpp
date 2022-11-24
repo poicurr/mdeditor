@@ -1,9 +1,6 @@
 #pragma once
 
 #include <algorithm>
-#include <cassert>
-#include <iostream>
-#include <list>
 #include <string>
 
 #include "../ParsingUtility.hpp"
@@ -351,7 +348,7 @@ class Parser {
         code += it->value;
       ++it;
     }
-    code.resize(code.size() - 1);
+    if (!code.empty()) code.resize(code.size() - 1);
 
     for (int i = 0; i < 3; ++i) {
       if (it->kind != TokenKind::BackQuote) return false;
@@ -370,13 +367,20 @@ class Parser {
   }
 
   bool parseUnorderedList(Node *root, token_iterator &it) {
+    auto prevSibling = context.prevSibling();
+    const bool isAfterUnorderedList =
+        prevSibling && prevSibling->type == NodeType::UnorderedList;
+    if (!isAfterUnorderedList && context.indent >= 4) {
+      // should be codeblock
+      return false;
+    }
+
     if (it->kind != TokenKind::Prefix) return false;
     if (it->value != "+ ") return false;
     context.index += it->value.size();
     context.indent = 0;
 
     // ul
-    auto prevSibling = context.prevSibling();
     if (prevSibling && prevSibling->type == NodeType::UnorderedList) {
       UnorderedListNode *prevlist =
           static_cast<UnorderedListNode *>(prevSibling);

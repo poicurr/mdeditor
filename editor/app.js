@@ -5,8 +5,6 @@ const { execSync } = require('child_process')
 const hostname = '127.0.0.1';
 const port = 8000;
 
-const sleep = waitTime => new Promise( resolve => setTimeout(resolve, waitTime) );
-
 let router = (req, res) => {
   var url = req.url;
   if ('/' == url) {
