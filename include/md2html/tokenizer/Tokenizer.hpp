@@ -242,10 +242,11 @@ class Tokenizer {
 
   bool tokenizeOrderedList(const char*& p) {
     const char* loc = p;
-    int count = skipWhile(p, isDigit);
+    skipWhile(p, isDigit);
+    auto digits = std::string{loc, p};
     if (*p != '.') return false;
     ++p;
-    tokens.emplace_back(TokenKind::Prefix, std::string("1", count) + ".", loc);
+    tokens.emplace_back(TokenKind::Prefix, digits + ".", loc);
     return true;
   }
 

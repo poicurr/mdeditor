@@ -467,8 +467,11 @@ class Parser {
   }
 
   bool parseOrderedList(token_iterator &it) {
+    // should be codeblock
+    if (context.indent >= 4) return false;
+
     if (it->kind != TokenKind::Prefix) return false;
-    if (it->value[0] != '1') return false;
+    if (!isDigit(it->value[0])) return false;
     context.index += it->value.size();
     context.indent = 0;
     ++it;
