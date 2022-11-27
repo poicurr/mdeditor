@@ -5,9 +5,6 @@
 #include "parser/Parser.hpp"
 #include "tokenizer/Tokenizer.hpp"
 
-const std::string styletag =
-    "<link rel=\"stylesheet\" href=\"./result/result.css\" />";
-
 int main(int argc, char const* argv[]) {
   if (argc != 2) {
     std::cerr << "usage: ./md2html /path/to/markdown.md" << std::endl;
@@ -34,7 +31,6 @@ int main(int argc, char const* argv[]) {
 
   std::cout << "[info] generating html (./result/result.html)" << std::endl;
   std::ofstream ofs("./result/result.html");
-  ofs << styletag << std::endl;
   for (auto&& node : nodes) {
     node->print(ofs, "");
   }

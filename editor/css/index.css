@@ -3,6 +3,42 @@ body {
   margin: 0;
 }
 
+p {
+  margin: 5px;
+  overflow-wrap: break-word;
+}
+
+ul {
+  padding-left: 30px;
+}
+
+img {
+  max-width: 100%;
+}
+
+blockquote {
+  border-left: 5px solid #adadad;
+  padding-left: 10px;
+  margin-left: 15px;
+}
+
+pre {
+  background: black;
+  padding: 15px;
+  border-radius: 5px;
+}
+
+p > code {
+  padding: 3px;
+  border-radius: 5px;
+  background: #cfcfcf;
+  color: red;
+}
+
+pre code {
+  color: green;
+}
+
 .ltop {
   height: 25px;
   width: 50%;

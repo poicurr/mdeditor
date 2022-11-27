@@ -7,39 +7,28 @@ const port = 8000;
 
 let router = (req, res) => {
   var url = req.url;
+  var m = null;
   if ('/' == url) {
     fs.readFile('index.html', function (err, data) {
       res.writeHead(200, {'Content-Type': 'text/html'});
       res.write(data);
       res.end();
     });
+  } else if (m = url.match(/^\/(.+\.js)$/g)) {
+    fs.readFile('.' + m[0], function (err, data) {
+      res.writeHead(200, {'Content-Type': 'text/javascript'});
+      res.write(data);
+      res.end();
+    });
+  } else if (m = url.match(/^\/(.+\.css)$/g)) {
+    fs.readFile('.' + m[0], function (err, data) {
+      res.writeHead(200, {'Content-Type': 'text/css'});
+      res.write(data);
+      res.end();
+    });
   } else if ('/favicon.ico' == url) {
     fs.readFile('./favicon.ico', function (err, data) {
       res.writeHead(200, {'Content-Type': 'image/x-icon'});
-      res.write(data);
-      res.end();
-    });
-  } else if ('/css/index.css' == url) {
-    fs.readFile('./css/index.css', function (err, data) {
-      res.writeHead(200, {'Content-Type': 'text/css'});
-      res.write(data);
-      res.end();
-    });
-  } else if ('/script/index.js' == url) {
-    fs.readFile('./script/index.js', function (err, data) {
-      res.writeHead(200, {'Content-Type': 'text/javascript'});
-      res.write(data);
-      res.end();
-    });
-  } else if ('/script/jquery-3.6.1.min.js' == url) {
-    fs.readFile('./script/jquery-3.6.1.min.js', function (err, data) {
-      res.writeHead(200, {'Content-Type': 'text/javascript'});
-      res.write(data);
-      res.end();
-    });
-  } else if ('/result/result.css' == url) {
-    fs.readFile('./result/result.css', function (err, data) {
-      res.writeHead(200, {'Content-Type': 'text/css'});
       res.write(data);
       res.end();
     });
