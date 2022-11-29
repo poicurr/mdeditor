@@ -4,19 +4,20 @@
 #include <string>
 
 #include "../ParsingUtility.hpp"
+#include "../TypeAlias.hpp"
 #include "../tokenizer/Token.hpp"
 #include "Node.hpp"
 #include "ParsingContext.hpp"
 
 namespace m2h {
 
-using token_iterator = std::vector<Token>::iterator;
+using token_iterator = std::vector<Token>::const_iterator;
 
 class Parser {
  public:
   Parser() {}
 
-  std::vector<Node *> parse(std::vector<Token> &tokens) {
+  CRef<std::vector<Node *>> parse(CRef<std::vector<Token>> tokens) {
     Node *root = new RootNode();
     context.parent = root;
     context.index = 0;

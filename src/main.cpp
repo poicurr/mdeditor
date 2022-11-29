@@ -25,9 +25,9 @@ int main(int argc, char const* argv[]) {
   }
 
   m2h::Tokenizer tokenizer;
-  std::vector<m2h::Token> tokens = tokenizer.tokenize(s.c_str());
+  const auto& tokens = tokenizer.tokenize(s.c_str());
   m2h::Parser parser;
-  std::vector<m2h::Node*> nodes = parser.parse(tokens);
+  const auto& nodes = parser.parse(tokens);
 
   std::cout << "[info] generating html (./result/result.html)" << std::endl;
   std::ofstream ofs("./result/result.html");
