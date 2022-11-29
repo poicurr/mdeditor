@@ -8,5 +8,5 @@ cd ..
 copy .\build\src\Release\main.bin.exe .\editor\bin\
 
 cd .\editor
-node .\app.js
-
+start node .\app.js
+start http://127.0.0.1:8000
