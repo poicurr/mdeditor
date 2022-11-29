@@ -11,7 +11,7 @@ window.onload = (ev) => {
     xhr.open("POST", "/save", true);
     xhr.onload = (ev) => {
       if (xhr.readyState == 4 && xhr.status == 200) {
-        result.innerHTML = decodeURI(xhr.responseText);
+        result.innerHTML = xhr.responseText;
       }
     }
 
