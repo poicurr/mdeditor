@@ -7,16 +7,19 @@ window.onload = (ev) => {
   let result = document.querySelector(".target");
 
   editor.addEventListener("input", (ev) => {
-    $.ajax({
-      url: "/save",
-      type: "post",
-      dataType: "text",
-      data: { "name": encodeURI(ev.target.value) },
-    }).done((data) => {
-      result.innerHTML = decodeURI(data);
-    }).fail(function(XMLHttpRequest, textStatus, errorThrown) {
-      console.log(textStatus);
-    })
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", "/save", true);
+    xhr.onload = (ev) => {
+      if (xhr.readyState == 4 && xhr.status == 200) {
+        result.innerHTML = decodeURI(xhr.responseText);
+      }
+    }
+
+    xhr.onerror = (ev) => {
+      console.error(xhr.statusText);
+    }
+
+    xhr.send(ev.target.value);
   });
 
   fileSelector.addEventListener("change", (ev) => {

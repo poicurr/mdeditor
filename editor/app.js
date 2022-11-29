@@ -36,8 +36,7 @@ let router = (req, res) => {
     var reqdata = '';
     req.on('data', function(chunk) {reqdata += chunk})
       .on('end', function() {
-      let pair = decodeURI(reqdata).split("=", 2);
-      let value = decodeURIComponent(pair[1]);
+      let value = decodeURIComponent(reqdata);
       fs.writeFileSync("./result/temp.md", value + "\n");
       execSync("\"./bin/main.bin\" \"./result/temp.md\"");
       fs.readFile('./result/result.html', function (err, data) {
