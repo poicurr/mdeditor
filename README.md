@@ -2,21 +2,21 @@
 shitty markdown editor
 
 ## requirements
-+ node installed on your system
-+ cmake, c++ compiler
++ nodejs must be installed on the system
++ C++ compiler and CMake must be installed on the system
 
 ## build/run
 
 ### Linux
-    git clone https://github.com/unkomogu2/mdeditor.git
+    git clone https://github.com/poicurr/mdeditor.git
     cd mdeditor
     ./build-run.sh
 
 ### Windows
-    git clone https://github.com/unkomogu2/mdeditor.git
+    git clone https://github.com/poicurr/mdeditor.git
     cd mdeditor
     ./build-run.bat
 
 ## screenshot
-![screenshot](https://raw.githubusercontent.com/unkomogu2/resources/main/mdeditor/Screenshot.png)
+![screenshot](https://raw.githubusercontent.com/poicurr/resources/main/mdeditor/Screenshot.png)
 
