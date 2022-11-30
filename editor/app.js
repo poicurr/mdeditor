@@ -32,14 +32,14 @@ let router = (req, res) => {
       res.write(data);
       res.end();
     });
-  } else if ('/save' == url) {
+  } else if ('/update' == url) {
     var reqdata = '';
     req.on('data', function(chunk) {reqdata += chunk})
       .on('end', function() {
       let value = reqdata;
-      fs.writeFileSync("./result/temp.md", value + "\n");
-      execSync("\"./bin/main.bin\" \"./result/temp.md\"");
-      fs.readFile('./result/result.html', function (err, data) {
+      fs.writeFileSync("./temp/temp.md", value + "\n");
+      execSync("\"./bin/main.bin\" \"./temp/temp.md\"");
+      fs.readFile('./temp/temp.html', function (err, data) {
         res.writeHead(200, {'Content-Type': 'text/html'});
         res.write(data);
         res.end();

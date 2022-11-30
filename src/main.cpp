@@ -29,8 +29,7 @@ int main(int argc, char const* argv[]) {
   m2h::Parser parser;
   const auto& nodes = parser.parse(tokens);
 
-  std::cout << "[info] generating html (./result/result.html)" << std::endl;
-  std::ofstream ofs("./result/result.html");
+  std::ofstream ofs("./temp/temp.html");
   for (auto&& node : nodes) {
     node->print(ofs, "");
   }
