@@ -1,7 +1,5 @@
 window.onload = (ev) => {
 
-  let reader = new FileReader();
-
   let fileSelector = document.querySelector("#fileSelector");
   let fileSaveBtn  = document.querySelector("#savefile");
   let editor = document.querySelector(".lpanel");
@@ -22,6 +20,7 @@ window.onload = (ev) => {
   });
 
   fileSelector.addEventListener("change", (ev) => {
+    let reader = new FileReader();
     let file = ev.target.files[0];
     reader.readAsText(file);
     reader.onload = (ev) => {

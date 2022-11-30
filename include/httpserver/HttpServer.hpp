@@ -21,7 +21,7 @@
 
 #endif
 
-const size_t BUFFER_SIZE = 8 * 1024;
+const size_t BUFFER_SIZE = 8192;
 
 HttpRequest parseRequest(const std::string &recvData) {
   if (recvData.empty()) return HttpRequest{};
@@ -88,23 +88,17 @@ struct HttpServer {
       auto recvData = std::string{};
       char buffer[BUFFER_SIZE];
       int recvCount = recv(client, buffer, BUFFER_SIZE, 0);
-      if (recvCount > 0) {
-        buffer[recvCount] = '\0';
-        recvData.append(buffer, recvCount);
-      }
+      if (recvCount > 0) recvData.append(buffer, recvCount);
 
       // parse request
       auto request = parseRequest(recvData);
 
       if (toUpper(request.header.method) == "POST") {
         // parse remaining body
-        auto contentType = valueOf(request, "Content-Type");
         auto contentLength = std::stoi(valueOf(request, "Content-Length"));
-        while (recvCount < contentLength) {
+        while (request.body.size() < contentLength) {
           int n = recv(client, buffer, BUFFER_SIZE, 0);
-          buffer[n] = '\0';
           request.body.append(buffer, n);
-          recvCount += n;
         }
       }
 
