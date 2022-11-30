@@ -2,7 +2,6 @@
 shitty markdown editor
 
 ## requirements
-+ nodejs must be installed on the system
 + C++ compiler and CMake must be installed on the system
 
 ## build/run
