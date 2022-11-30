@@ -9,12 +9,12 @@ shitty markdown editor
 ### Linux
     git clone https://github.com/poicurr/mdeditor.git
     cd mdeditor
-    ./build-run.sh
+    ./build.sh
 
 ### Windows
     git clone https://github.com/poicurr/mdeditor.git
     cd mdeditor
-    ./build-run.bat
+    ./build.bat
 
 ## screenshot
 ![screenshot](https://raw.githubusercontent.com/poicurr/resources/main/mdeditor/Screenshot.png)
