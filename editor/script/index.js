@@ -15,11 +15,9 @@ window.onload = (ev) => {
         result.innerHTML = xhr.responseText;
       }
     }
-
     xhr.onerror = (ev) => {
       console.error(xhr.statusText);
     }
-
     xhr.send(ev.target.value);
   });
 
