@@ -35,9 +35,8 @@ HttpResponse get(const HttpRequest& request) {
   if (path.empty())
     return HttpResponse{"HTTP/1.1 404 Not Found", "text/html", ""};
 
-  if (path.find("..") != std::string::npos) {
+  if (contains(path, ".."))
     return HttpResponse{"HTTP/1.1 404 Not Found", "text/html", ""};
-  }
 
   auto target = std::string{};
   if (path == "/") {

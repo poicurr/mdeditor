@@ -23,7 +23,14 @@
 
 const size_t BUFFER_SIZE = 8192;
 
-HttpRequest parseRequest(const std::string &recvData) {
+std::string valueOf(const HttpRequestHeader &header, const std::string &key) {
+  auto headers = header.headers;
+  auto it = headers.find(key);
+  if (it == headers.end()) return "";
+  return it->second;
+}
+
+HttpRequest parseRequest(int client, const std::string &recvData) {
   if (recvData.empty()) return HttpRequest{};
   std::vector<std::string> headerbody = split(recvData, "\r\n\r\n");
   auto header = headerbody[0];
@@ -41,14 +48,17 @@ HttpRequest parseRequest(const std::string &recvData) {
   }
   // parse body
   auto body = headerbody[1];
+  // parse remaining body
+  const auto contentLength = valueOf(requestHeader, "Content-Length");
+  if (contentLength != "") {
+    const auto len = std::stoi(contentLength);
+    char buffer[BUFFER_SIZE];
+    while (body.size() < len) {
+      int n = recv(client, buffer, BUFFER_SIZE, 0);
+      body.append(buffer, n);
+    }
+  }
   return HttpRequest{requestHeader, body};
-}
-
-std::string valueOf(const HttpRequest &request, const std::string &key) {
-  auto headers = request.header.headers;
-  auto it = headers.find(key);
-  if (it == headers.end()) return "";
-  return headers.at(key);
 }
 
 struct HttpServer {
@@ -91,16 +101,7 @@ struct HttpServer {
       if (recvCount > 0) recvData.append(buffer, recvCount);
 
       // parse request
-      auto request = parseRequest(recvData);
-
-      if (toUpper(request.header.method) == "POST") {
-        // parse remaining body
-        auto contentLength = std::stoi(valueOf(request, "Content-Length"));
-        while (request.body.size() < contentLength) {
-          int n = recv(client, buffer, BUFFER_SIZE, 0);
-          request.body.append(buffer, n);
-        }
-      }
+      auto request = parseRequest(client, recvData);
 
       // handle request
       HttpResponse resp = handler(request);
