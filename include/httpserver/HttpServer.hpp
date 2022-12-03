@@ -2,7 +2,6 @@
 #include <HttpResponse.hpp>
 #include <common/StringUtils.hpp>
 #include <future>
-#include <iostream>
 #include <sstream>
 #include <thread>
 #include <vector>
@@ -141,5 +140,4 @@ struct HttpServer {
   }
 
   int m_socket;
-  std::mutex m_iomutex;
 };
