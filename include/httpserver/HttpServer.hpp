@@ -1,9 +1,10 @@
 #include <HttpRequest.hpp>
 #include <HttpResponse.hpp>
 #include <common/StringUtils.hpp>
-#include <common/thread.hpp>
+#include <future>
 #include <iostream>
 #include <sstream>
+#include <thread>
 #include <vector>
 
 #ifdef __linux__
@@ -94,24 +95,25 @@ struct HttpServer {
     socklen_t dstAddrSize = sizeof(dstAddr);
     while (1) {
       std::vector<std::future<void>> results = {};
-      for (int i = 0; i < 100; ++i) {
+      for (int i = 0; i < 1000; ++i) {
         auto future = std::async(
             [&](RequestHandler &&handler) {
-              int client = accept(m_socket, (sockaddr *)&dstAddr, &dstAddrSize);
+              const int client =
+                  accept(m_socket, (sockaddr *)&dstAddr, &dstAddrSize);
             reuseaddr:
               auto recvData = std::string{};
               char buffer[BUFFER_SIZE];
-              int recvCount = recv(client, buffer, BUFFER_SIZE, 0);
+              const int recvCount = recv(client, buffer, BUFFER_SIZE, 0);
               if (recvCount > 0) recvData.append(buffer, recvCount);
 
               // parse request
-              auto request = parseRequest(client, recvData);
+              const auto request = parseRequest(client, recvData);
 
-              bool keepAlive =
+              const bool keepAlive =
                   valueOf(request.header, "Connection") == "keep-alive";
 
               // handle request
-              HttpResponse resp = handler(request);
+              const HttpResponse resp = handler(request);
 
               // send response
               std::stringstream ss;
@@ -120,7 +122,7 @@ struct HttpServer {
               ss << "Content-Type: " << resp.mimetype << "\r\n";
               ss << "\r\n";
               ss << resp.body;
-              auto response = ss.str();
+              const auto response = ss.str();
               send(client, response.data(), response.size(), 0);
 
               if (keepAlive) goto reuseaddr;
