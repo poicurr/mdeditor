@@ -56,7 +56,7 @@ HttpRequest parseRequest(int client, const std::string &recvData) {
     char buffer[BUFFER_SIZE];
     while (body.size() < len) {
       int n = recv(client, buffer, BUFFER_SIZE, 0);
-      body.append(buffer, n);
+      if (n > 0) body.append(buffer, n);
     }
   }
   return HttpRequest{requestHeader, body};
@@ -94,7 +94,7 @@ struct HttpServer {
     socklen_t dstAddrSize = sizeof(dstAddr);
     while (1) {
       std::vector<std::future<void>> results = {};
-      for (int i = 0; i < 1000; ++i) {
+      for (int i = 0; i < 100; ++i) {
         auto future = std::async(
             [&](RequestHandler &&handler) {
               int client = accept(m_socket, (sockaddr *)&dstAddr, &dstAddrSize);
