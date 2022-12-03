@@ -5,5 +5,7 @@ include_directories(
 add_executable(main.bin main.cpp)
 if(WIN32)
   target_link_libraries(main.bin wsock32 ws2_32)
+else(UNIX)
+  target_link_libraries(main.bin pthread)
 endif()
 
