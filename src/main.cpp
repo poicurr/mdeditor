@@ -48,26 +48,28 @@ HttpResponse get(const HttpRequest& request) {
   std::ifstream ifs(target, std::ios::binary);
   if (!ifs.is_open())
     return HttpResponse{"HTTP/1.1 404 Not Found", "text/html", ""};
+
   return HttpResponse{"HTTP/1.1 200 OK", mimetype(target), loadfile(ifs)};
 }
 
 HttpResponse post(const HttpRequest& request) {
   const auto path = request.header.path;
-  if (path == "/update") {
-    if (request.body.empty())
-      return HttpResponse{"HTTP/1.1 200 OK", "text/html", ""};
-    auto body = request.body + "\n";
-    m2h::Tokenizer tokenizer;
-    const auto& tokens = tokenizer.tokenize(body.c_str());
-    m2h::Parser parser;
-    const auto& nodes = parser.parse(tokens);
-    std::stringstream ss;
-    for (auto&& node : nodes) {
-      node->print(ss, "");
-    }
-    return HttpResponse{"HTTP/1.1 200 OK", "text/html", ss.str()};
+  if (path != "/update")
+    return HttpResponse{"HTTP/1.1 404 Not Found", "text/html", ""};
+
+  if (request.body.empty())
+    return HttpResponse{"HTTP/1.1 200 OK", "text/html", ""};
+
+  auto body = request.body + "\n";
+  m2h::Tokenizer tokenizer;
+  const auto& tokens = tokenizer.tokenize(body.c_str());
+  m2h::Parser parser;
+  const auto& nodes = parser.parse(tokens);
+  std::stringstream ss;
+  for (auto&& node : nodes) {
+    node->print(ss, "");
   }
-  return HttpResponse{"HTTP/1.1 404 Not Found", "text/html", ""};
+  return HttpResponse{"HTTP/1.1 200 OK", "text/html", ss.str()};
 }
 
 int main(int argc, char const* argv[]) {
