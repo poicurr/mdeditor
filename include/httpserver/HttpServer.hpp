@@ -1,7 +1,10 @@
 #include <HttpRequest.hpp>
 #include <HttpResponse.hpp>
 #include <common/StringUtils.hpp>
+#include <csignal>
+#include <cstdlib>
 #include <future>
+#include <iostream>
 #include <sstream>
 #include <thread>
 #include <vector>
@@ -23,6 +26,7 @@
 #endif
 
 const size_t BUFFER_SIZE = 8192;
+const size_t MAX_CONNECTIONS = 5;
 
 std::string valueOf(const HttpRequestHeader &header, const std::string &key) {
   auto headers = header.headers;
@@ -31,9 +35,9 @@ std::string valueOf(const HttpRequestHeader &header, const std::string &key) {
   return it->second;
 }
 
-HttpRequest parseRequest(int client, const std::string &recvData) {
-  if (recvData.empty()) return HttpRequest{};
-  std::vector<std::string> headerbody = split(recvData, "\r\n\r\n");
+HttpRequest parseRequest(int client, const std::string &readData) {
+  if (readData.empty()) return HttpRequest{};
+  std::vector<std::string> headerbody = split(readData, "\r\n\r\n");
   auto header = headerbody[0];
   auto lines = split(header, "\r\n");
   // parse header message
@@ -55,7 +59,7 @@ HttpRequest parseRequest(int client, const std::string &recvData) {
     const auto len = std::stoi(contentLength);
     char buffer[BUFFER_SIZE];
     while (body.size() < len) {
-      int n = recv(client, buffer, BUFFER_SIZE, 0);
+      int n = read(client, buffer, BUFFER_SIZE);
       if (n > 0) body.append(buffer, n);
     }
   }
@@ -68,18 +72,24 @@ struct HttpServer {
     WSADATA data;
     WSAStartup(MAKEWORD(2, 0), &data);
 #endif
-    sockaddr_in srcAddr;
-    memset(&srcAddr, 0, sizeof(srcAddr));
-    srcAddr.sin_port = htons(port);
-    srcAddr.sin_family = AF_INET;
-    srcAddr.sin_addr.s_addr = htonl(INADDR_ANY);
-
-    const char yes = 1;
+    sockaddr_in serverAddr;
+    memset(&serverAddr, 0, sizeof(serverAddr));
+    serverAddr.sin_port = htons(port);
+    serverAddr.sin_family = AF_INET;
+    serverAddr.sin_addr.s_addr = htonl(INADDR_ANY);
     m_socket = socket(AF_INET, SOCK_STREAM, 0);
-    setsockopt(m_socket, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes));
 
-    bind(m_socket, (sockaddr *)&srcAddr, sizeof(srcAddr));
-    listen(m_socket, 1);
+    if (bind(m_socket, (sockaddr *)&serverAddr, sizeof(serverAddr)) < 0) {
+      std::cerr << "[error] failed to bind" << std::endl;
+      closeConnection(m_socket);
+      exit(1);
+    }
+
+    if (listen(m_socket, MAX_CONNECTIONS) < 0) {
+      std::cerr << "[error] failed to listen" << std::endl;
+      closeConnection(m_socket);
+      exit(1);
+    }
   }
 
   ~HttpServer() {
@@ -90,54 +100,50 @@ struct HttpServer {
 
   template <class RequestHandler>
   void run(RequestHandler &&handler) {
-    sockaddr_in dstAddr;
-    socklen_t dstAddrSize = sizeof(dstAddr);
-    while (1) {
-      std::vector<std::future<void>> results = {};
-      for (int i = 0; i < 1000; ++i) {
-        auto future = std::async(
-            [&](RequestHandler &&handler) {
-              const int client =
-                  accept(m_socket, (sockaddr *)&dstAddr, &dstAddrSize);
-            reuseaddr:
-              auto recvData = std::string{};
-              char buffer[BUFFER_SIZE];
-              const int recvCount = recv(client, buffer, BUFFER_SIZE, 0);
-              if (recvCount > 0) recvData.append(buffer, recvCount);
+    sockaddr_in clientAddr;
+    socklen_t clientAddrSize = sizeof(clientAddr);
+    while (true) {
+      int client = accept(m_socket, (sockaddr *)&clientAddr, &clientAddrSize);
+      auto readData = std::string{};
+      char buffer[BUFFER_SIZE];
+      int bytesRead = read(client, buffer, BUFFER_SIZE);
 
-              // parse request
-              const auto request = parseRequest(client, recvData);
-
-              const bool keepAlive =
-                  valueOf(request.header, "Connection") == "keep-alive";
-
-              // handle request
-              const HttpResponse resp = handler(request);
-
-              // send response
-              std::stringstream ss;
-              ss << resp.message << "\r\n";
-              ss << "Content-Length: " << resp.body.size() << "\r\n";
-              ss << "Content-Type: " << resp.mimetype << "\r\n";
-              ss << "\r\n";
-              ss << resp.body;
-              const auto response = ss.str();
-              send(client, response.data(), response.size(), 0);
-
-              if (keepAlive) goto reuseaddr;
-#ifdef __linux__
-              close(client);
-#elif _WIN32
-              closesocket(client);
-#endif
-              return;
-            },
-            std::move(handler));
-        results.emplace_back(std::move(future));
+      if (bytesRead < 0) {
+        closeConnection(client);
+        continue;
       }
-      for (auto &&f : results) f.get();
+      readData.append(buffer, bytesRead);
+
+      // parse request
+      const auto request = parseRequest(client, readData);
+
+      // handle request
+      const HttpResponse resp = handler(request);
+
+      // send response
+      std::stringstream ss;
+      ss << resp.message << "\r\n";
+      ss << "Content-Length: " << resp.body.size() << "\r\n";
+      ss << "Content-Type: " << resp.mimetype << "\r\n";
+      ss << "\r\n";
+      ss << resp.body;
+      const auto response = ss.str();
+      write(client, response.c_str(), response.size());
+
+      closeConnection(client);
     }
   }
 
+  void closeConnection(int socket) {
+#ifdef __linux__
+    close(socket);
+#elif _WIN32
+    closesocket(socket);
+#endif
+  }
+
+  void shutdown() { closeConnection(m_socket); }
+
+  bool m_shutdown;
   int m_socket;
 };
