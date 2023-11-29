@@ -59,7 +59,7 @@ HttpRequest parseRequest(int client, const std::string &readData) {
     const auto len = std::stoi(contentLength);
     char buffer[BUFFER_SIZE];
     while (body.size() < len) {
-      int n = read(client, buffer, BUFFER_SIZE);
+      int n = recv(client, buffer, BUFFER_SIZE, 0);
       if (n > 0) body.append(buffer, n);
     }
   }
@@ -106,7 +106,7 @@ struct HttpServer {
       int client = accept(m_socket, (sockaddr *)&clientAddr, &clientAddrSize);
       auto readData = std::string{};
       char buffer[BUFFER_SIZE];
-      int bytesRead = read(client, buffer, BUFFER_SIZE);
+      int bytesRead = recv(client, buffer, BUFFER_SIZE, 0);
 
       if (bytesRead < 0) {
         closeConnection(client);
@@ -128,7 +128,7 @@ struct HttpServer {
       ss << "\r\n";
       ss << resp.body;
       const auto response = ss.str();
-      write(client, response.c_str(), response.size());
+      send(client, response.c_str(), response.size(), 0);
 
       closeConnection(client);
     }
